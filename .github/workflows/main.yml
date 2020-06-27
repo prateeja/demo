@@ -19,14 +19,15 @@ jobs:
           export LAST_TAG="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
           export CHANGELOG_FROM="$(if [ "$LAST_TAG" = "HEAD" ]; then echo "$LAST_TAG..HEAD"; else echo "$CURRENT_TAG...$LAST_TAG"; fi;)"
       - name: Set changelog
+        run: echo ::set-env name=commitmsg::$(git log --pretty="%h - %s (%an)" $CHANGELOG_FROM)
         # (Escape newlines see https://github.com/actions/create-release/issues/25)
-        run: |
-          text="$(git --no-pager log $CHANGELOG_FROM --pretty=format:'%h - %s (%an)')"
-          text="$(echo $text | sed 's/^/- /; s/$//')"
-          echo "::set-env name=CHANGELOG::$text"
+        # run: |
+        #   text="$(git --no-pager log $CHANGELOG_FROM --pretty=format:'%h - %s (%an)')"
+        #   text="$(echo $text | sed 's/^/- /; s/$//')"
+        #   echo "::set-env name=CHANGELOG::$text"
       - name: Create Release
         id: create_release
-        uses: actions/create-release@latest
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -34,7 +35,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this Release
-            ${{ env.CHANGELOG }}
+            ${{ env.commitmsg }}
           draft: false
           prerelease: false
       # - uses: actions/checkout@v2
