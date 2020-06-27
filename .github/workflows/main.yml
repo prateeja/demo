@@ -11,36 +11,55 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Find next version
-        id: version
-        uses: ./
-      - name: Create Changelog
-        id: changelog
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get version of tag
         run: |
-          git log ${{ steps.version.outputs.last }}..${{ github.sha }} --pretty=oneline > ${{ runner.temp }}/CHANGELOG.md
-      - name: Create a release
-        #uses: actions/create-release@v1
-        # NOTE workaround, since actions/create-release@v1 does not support "commitish" parameter, see https://github.com/actions/create-release/pull/32
-        uses: actions/github-script@v2
+         echo ::set-env name=GH_TAG::${GITHUB_REF/refs\/tags\//}
+         echo ::set-env name=CLEAN_VERSION::${GITHUB_REF/refs\/tags\/v/}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+        # The github actions secret won't fire a release event for other workflows
+        # https://github.com/actions/create-release/issues/52
+          GITHUB_TOKEN: ${{ secrets.GHA_PSA }}
         with:
-          #tag_name: ${{ steps.next_version.outputs.result }}
-          #release_name: ${{ steps.next_version.outputs.result }}
-          #commitish: ${{ github.sha }}
-          #body: |
-          #  ## Changelog
-          #  ${{ steps.changelog.outputs.result }}
-          script: |
-            const fs = require("fs");
-            const util = require("util");
-            const readFile = util.promisify(fs.readFile);
-            const changelog = await readFile("${{ runner.temp }}/CHANGELOG.md", "utf8");
-            await github.repos.createRelease({
-              ...context.repo,
-              name: "${{ steps.version.outputs.next }}",
-              tag_name: "${{ steps.version.outputs.next }}",
-              body: "## Changelog\n" + changelog,
-              target_commitish: context.sha,
-            });
+          tag_name: ${{ github.ref }}
+          release_name: Hyperion Remote ${{ env.CLEAN_VERSION }}
+          body: Latest Release notes at [CHANGELOG.md](${{ github.event.repository.html_url}}/blob/master/CHANGELOG.md)
+          draft: false
+          prerelease: false
+      # - uses: actions/checkout@v2
+      #   with:
+      #     fetch-depth: 0
+      # - name: Find next version
+      #   id: version
+      #   uses: ./
+      # - name: Create Changelog
+      #   id: changelog
+      #   run: |
+      #     git log ${{ steps.version.outputs.last }}..${{ github.sha }} --pretty=oneline > ${{ runner.temp }}/CHANGELOG.md
+      # - name: Create a release
+      #   #uses: actions/create-release@v1
+      #   # NOTE workaround, since actions/create-release@v1 does not support "commitish" parameter, see https://github.com/actions/create-release/pull/32
+      #   uses: actions/github-script@v2
+      #   with:
+      #     #tag_name: ${{ steps.next_version.outputs.result }}
+      #     #release_name: ${{ steps.next_version.outputs.result }}
+      #     #commitish: ${{ github.sha }}
+      #     #body: |
+      #     #  ## Changelog
+      #     #  ${{ steps.changelog.outputs.result }}
+      #     script: |
+      #       const fs = require("fs");
+      #       const util = require("util");
+      #       const readFile = util.promisify(fs.readFile);
+      #       const changelog = await readFile("${{ runner.temp }}/CHANGELOG.md", "utf8");
+      #       await github.repos.createRelease({
+      #         ...context.repo,
+      #         name: "${{ steps.version.outputs.next }}",
+      #         tag_name: "${{ steps.version.outputs.next }}",
+      #         body: "## Changelog\n" + changelog,
+      #         target_commitish: context.sha,
+      #       });
