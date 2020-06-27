@@ -17,7 +17,7 @@ jobs:
         run: |
           export CURRENT_TAG="$(git describe --tags --abbrev=0)"
           export LAST_TAG="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
-          export CHANGELOG_FROM="$(if [ "$LAST_TAG" = "HEAD" ] then echo "$LAST_TAG..HEAD" else echo "$CURRENT_TAG...$LAST_TAG" fi)"
+          export CHANGELOG_FROM="$(if [ "$LAST_TAG" = "HEAD" ]; then echo "$LAST_TAG..HEAD"; else echo "$CURRENT_TAG...$LAST_TAG"; fi;)"
       - name: Set changelog
         # (Escape newlines see https://github.com/actions/create-release/issues/25)
         run: |
