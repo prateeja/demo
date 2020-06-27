@@ -22,9 +22,6 @@ jobs:
         # (Escape newlines see https://github.com/actions/create-release/issues/25)
         run: |
           text="$(git --no-pager log $CHANGELOG_FROM --pretty=format:'%h - %s (%an)')"
-          text="${text//$'%'/%25}"
-          text="${text//$'\n'/%0A}"
-          text="${text//$'\r'/%0D}"
           echo "::set-env name=CHANGELOG::$text"
       - name: Create Release
         id: create_release
