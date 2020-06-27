@@ -17,6 +17,11 @@ jobs:
         run: |
          echo ::set-env name=GH_TAG::${GITHUB_REF/refs\/tags\//}
          echo ::set-env name=CLEAN_VERSION::${GITHUB_REF/refs\/tags\/v/}
+      - name: Generate changelog
+        id: changelog
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
@@ -26,8 +31,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Hyperion Remote ${{ env.CLEAN_VERSION }} | ${{ env.GH_TAG }}
-          body: Latest Release notes at [CHANGELOG.md](${{ github.event.repository.html_url}}/blob/master/CHANGELOG.md)
+          release_name: ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
           draft: false
           prerelease: false
       # - uses: actions/checkout@v2
