@@ -23,7 +23,7 @@ jobs:
         env:
         # The github actions secret won't fire a release event for other workflows
         # https://github.com/actions/create-release/issues/52
-          GITHUB_TOKEN: ${{ secrets.GHA_PSA }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: Hyperion Remote ${{ env.CLEAN_VERSION }}
