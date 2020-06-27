@@ -22,7 +22,10 @@ jobs:
         # (Escape newlines see https://github.com/actions/create-release/issues/25)
         run: |
           text="$(git --no-pager log $CHANGELOG_FROM --pretty=format:'%h - %s (%an)')"
-          echo "::set-env name=CHANGELOG::$text"
+          text="${text//$'%'/%25}"
+          text="${text//$'\n'/%0A}"
+          text="${text//$'\r'/%0D}"
+          export CHANGELOG="$text"
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
@@ -33,7 +36,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this Release
-            ${{ env.CHANGELOG }}
+            ${{ "$CHANGELOG" }}
           draft: false
           prerelease: false
       # - uses: actions/checkout@v2
