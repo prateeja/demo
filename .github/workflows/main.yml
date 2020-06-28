@@ -18,7 +18,7 @@ jobs:
           export LAST_TAG="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
           export CHANGELOG_FROM="$(if [ "$LAST_TAG" = "HEAD" ]; then echo "$LAST_TAG..HEAD"; else echo "$CURRENT_TAG...$LAST_TAG"; fi;)"
       - name: Get commit Message
-        run: echo ::set-env name=commitmsg::$(git log --pretty="%h - %s (%an)" $CHANGELOG_FROM)
+        run: echo ::set-env name=commitmsg::$(git log --format=%B $CHANGELOG_FROM)
       - id: new_release
         uses: actions/create-release@v1
         env:
