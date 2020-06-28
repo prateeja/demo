@@ -1,24 +1,24 @@
+name: Release
+
+# Controls when the action will run. Triggers the workflow on push tags
+# events but only for the master branch
 on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - '*'
 
-name: Create Release
-
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set release tag
-        run: |
-          export CURRENT_TAG="$(git describe --tags --abbrev=0)"
-          export LAST_TAG="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
-          export CHANGELOG_FROM="$(if [ "$LAST_TAG" = "HEAD" ]; then echo "$LAST_TAG..HEAD"; else echo "$CURRENT_TAG...$LAST_TAG"; fi;)"
+      # Get Commit Message to be used in release
       - name: Get commit Message
-        run: echo ::set-env name=commitmsg::$(git log --pretty="%h - %s (%an)" $CHANGELOG_FROM)
+        run: echo ::set-env name=commitmsg::$(git log --pretty="%h - %s (%an)" $(git describe --tags --abbrev=0)..@)
+        # Creating a new Release
       - id: new_release
         uses: actions/create-release@v1
         env:
