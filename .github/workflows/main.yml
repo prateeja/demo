@@ -20,7 +20,9 @@ jobs:
       - name: 'Prepare the changelog'
         id: prepare_changelog
         run: |
+          printf "changelog:\n%s\n" "$CHANGELOG_FROM"
           changelog="$(git log --pretty="%h - %s (%an)" $CHANGELOG_FROM)"
+          printf "changelog:\n%s\n" "${changelog}"
           changelog="${changelog//'%'/'%25'}"
           changelog="${changelog//$'\n'/'%0A'}"
           changelog="${changelog//$'\r'/'%0D'}"
