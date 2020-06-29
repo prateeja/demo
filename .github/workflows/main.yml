@@ -29,8 +29,9 @@ jobs:
         id: prepare_changelog
         shell: bash
         run: |
-          printf "prev_tag:\n%s\n" "${{ steps.tags.outputs.curr_tag }}"
-          printf "curr_tag:\n%s\n" "${{ steps.tags.outputs.prev_tag }}"
+          printf "prev_tag:%s\n" "${{ steps.tags.outputs.curr_tag }}"
+          printf "curr_tag:%s\n" "${{ steps.tags.outputs.prev_tag }}"
+          printf "version tag:%s\n" "${{ steps.tags.outputs.curr_tag }}...${{ steps.tags.outputs.prev_tag }}"
           changelog=$(git log --pretty="%h - %s (%an)" ${{ steps.tags.outputs.curr_tag }}...${{ steps.tags.outputs.prev_tag }})
           printf "changelog:\n%s\n" "${changelog}"
           # See https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/td-p/37870
