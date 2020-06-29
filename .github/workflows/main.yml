@@ -27,7 +27,7 @@ jobs:
           printf 'PREV_TAG:\n%s\n' "${PREV_TAG}"
           export CHANGELOG_FROM="$(if [ "$PREV_TAG" = "HEAD" ]; then echo "$PREV_TAG..HEAD"; else echo "$CURR_TAG...$PREV_TAG"; fi;)"
           printf 'CHANGELOG_FROM:\n%s\n' "${CHANGELOG_FROM}"
-          changelog="$(git log --pretty="%h - %s (%an)" $CHANGELOG_FROM)"
+          changelog="$(git log --pretty="%h - %s (%an)" v50.0...v49.0)"
           printf 'changelog:\n%s\n' "${changelog}"
           # See https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/td-p/37870
           changelog="${changelog//'%'/'%25'}"
