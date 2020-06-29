@@ -1,35 +1,60 @@
+name: Release
+
 on:
   push:
-    # Sequence of patterns matched against refs/tags
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
-
-name: Create Release
+      - 'v*'
 
 jobs:
   release:
+    name: Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set release tag
+      - name: Fetch git history
         run: |
-          export CURRENT_TAG="$(git describe --tags --abbrev=0)"
-          export LAST_TAG="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
-          export CHANGELOG_FROM="$(if [ "$LAST_TAG" = "HEAD" ]; then echo "$LAST_TAG..HEAD"; else echo "$CURRENT_TAG...$LAST_TAG"; fi;)"
-      - name: 'Prepare the changelog'
-        id: prepare_changelog
+          git fetch --prune --unshallow
+      - name: Parse tags
+        shell: bash
+        id: tags
         run: |
-          changelog="$(git log --pretty="%h - %s (%an)" $CHANGELOG_FROM)"
-          changelog=${changelog//$'\n'/'%0A'}
-          echo "::set-output name=content::${changelog}"
-      - id: new_release
+          current_tag=$(git tag --sort=-creatordate -l "production*" | head -1)
+          previous_tag=$(git tag --sort=-creatordate -l "production*" | head -2 | awk '{split($0, tags, "\n")} END {print tags[1]}')
+          echo "::set-output name=current_tag::$current_tag"
+          echo "::set-output name=previous_tag::$previous_tag"
+      - name: Create changelog
+        shell: bash
+        id: changelog
+        run: |
+          changelog=$(git log --first-parent --pretty=format:"-%d %s: %b (%cr) (%an)" ${{ steps.tags.outputs.current_tag }}...${{ steps.tags.outputs.previous_tag }})
+          compare="https://github.com/${{ github.repository }}/compare/${{ steps.tags.outputs.previous_tag }}...${{ steps.tags.outputs.current_tag }}"
+          changelog="sha: ${{ github.sha }}"$'\n\n'"full diff:${compare}"$'\n\n'"${changelog}"
+          changelog="${changelog//'%'/'%25'}"
+          changelog="${changelog//$'\n'/'%0A'}"
+          changelog="${changelog//$'\r'/'%0D'}"
+          echo "::set-output name=changelog::$changelog"
+      - name: Create draft release
+        id: release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          body: ${{ steps.prepare_changelog.outputs.content }}
+          body: |
+            ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: false
+      - name: Send slack notification
+        uses: rtCamp/action-slack-notify@v2.0.2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: github
+          SLACK_ICON_EMOJI: ':ship:'
+          SLACK_MESSAGE: |
+            Release: ${{ steps.draft_release.outputs.html_url }}
+            ${{ steps.changelog.outputs.changelog }}
+          SLACK_TITLE: New Production release incoming!
+          SLACK_USERNAME: release-bot
+
