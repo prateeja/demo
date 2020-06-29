@@ -20,6 +20,7 @@ jobs:
         shell: bash
         id: tags
         run: |
+          git fetch --tags -f
           curr_tag="$(git describe --tags --abbrev=0)"
           prev_tag="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
           echo "::set-output name=curr_tag::$curr_tag"
@@ -28,7 +29,6 @@ jobs:
         id: prepare_changelog
         shell: bash
         run: |
-          git fetch --tags -f
           printf "prev_tag:\n%s\n" "${{ steps.tags.outputs.curr_tag }}"
           printf "curr_tag:\n%s\n" "${{ steps.tags.outputs.prev_tag }}"
           changelog=$(git log --pretty="%h - %s (%an)" ${{ steps.tags.outputs.curr_tag }}...${{ steps.tags.outputs.prev_tag }})
