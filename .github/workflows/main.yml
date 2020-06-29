@@ -20,20 +20,20 @@ jobs:
         id: prepare_changelog
         shell: bash
         run: |
-          TAGS="$(git fetch --tags)"
-          CURR_TAG="$(git describe --tags --abbrev=0)"
-          printf 'CURR_TAG:\n%s\n' "${CURR_TAG}"
-          PREV_TAG="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
-          printf 'PREV_TAG:\n%s\n' "${PREV_TAG}"
-          CHANGELOG_FROM="$(if [ "${PREV_TAG}" = "HEAD" ]; then echo "${PREV_TAG}..HEAD"; else echo "${CURR_TAG}...${PREV_TAG}"; fi;)"
-          printf 'CHANGELOG_FROM:\n%s\n' "${CHANGELOG_FROM}"
-          changelog="$(git log --pretty="%h - %s (%an)" ${CHANGELOG_FROM})"
-          printf 'changelog:\n%s\n' "${changelog}"
+          git_tags="$(git fetch --tags)"
+          curr_tag="$(git describe --tags --abbrev=0)"
+          printf "curr tag:\n%s\n" "${curr_tag}"
+          prev_tag="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
+          printf "prev tag:\n%s\n" "${prev_tag}"
+          changelog_version="$(if [ "${prev_tag}" = "HEAD" ]; then echo "${prev_tag}..HEAD"; else echo "${curr_tag}...${prev_tag}"; fi;)"
+          printf "changelog version:\n%s\n" "${changelog_version}"
+          changelog="$(git log --pretty="%h - %s (%an)" ${changelog_version})"
+          printf "changelog:\n%s\n" "${changelog}"
           # See https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/td-p/37870
           changelog="${changelog//'%'/'%25'}"
           changelog="${changelog//$'\n'/'%0A'}"
           changelog="${changelog//$'\r'/'%0D'}"
-          printf 'changelog:\n%s\n' "${changelog}"
+          printf "changelog:\n%s\n" "${changelog}"
           echo "::set-output name=changelog::${changelog}"
       - name: Create Release
         id: create_release
