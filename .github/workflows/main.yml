@@ -20,7 +20,7 @@ jobs:
         id: prepare_release_description
         shell: bash
         run: |
-          PREV_TAG="$(git describe --abbrev=0 --tags HEAD^ --match 'v*')"
+          PREV_TAG="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
           GIT_ARGS=(
             "${PREV_TAG}..." # Get all commits since last tag ( release )
             --no-merges # Ignore merge commits
