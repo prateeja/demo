@@ -24,7 +24,7 @@ jobs:
           printf "curr tag:\n%s\n" "${curr_tag}"
           prev_tag="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
           printf "prev tag:\n%s\n" "${prev_tag}"
-          changelog_version="$(if [ "${prev_tag}" = "HEAD" ]; then echo "${prev_tag}..HEAD"; else echo "${curr_tag}...${prev_tag}"; fi;)"
+          changelog_version="$(if [ "${prev_tag}" = "HEAD" ]; then echo "${curr_tag}..${prev_tag}"; else echo "${curr_tag}...${prev_tag}"; fi;)"
           printf "changelog version:\n%s\n" "${changelog_version}"
           changelog="$(git log --pretty="%h - %s (%an)" ${changelog_version})"
           printf "changelog:\n%s\n" "${changelog}"
