@@ -30,12 +30,10 @@ jobs:
         shell: bash
         run: |
           git fetch --tags -f
-          printf "prev_tag:%s\n" "${{ steps.tags.outputs.curr_tag }}"
-          printf "curr_tag:%s\n" "${{ steps.tags.outputs.prev_tag }}"
           printf "version tag:%s\n" "${{ steps.tags.outputs.curr_tag }}...${{ steps.tags.outputs.prev_tag }}"
-          printf "log tag:%s\n" "git log --pretty='%h - %s (%an)' v50.0...v49.0"
+          printf "log tag:%s\n" "git log --pretty='%h - %s (%an)' ${curr_tag}...v49.0"
           printf "log tag for version:%s\n" "$(git log --pretty='%h - %s (%an)' v50.0...v49.0)"
-          changelog=$(git log --pretty="%h - %s (%an)" v50.0...v49.0)
+          changelog=$(git log --pretty="%h - %s (%an)" ${curr_tag}...v49.0)
           printf "changelog:\n%s\n" "${changelog}"
           # See https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/td-p/37870
           changelog="${changelog//'%'/'%25'}"
