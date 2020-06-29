@@ -33,7 +33,7 @@ jobs:
         id: changelog
         run: |
           printf "version tag:%s\n" "${{ steps.tags.outputs.current_tag }}...${{ steps.tags.outputs.previous_tag }}"
-          changelog=$(git log --first-parent --pretty=format:"-%d %s: %b (%cr) (%an)" ${{ steps.tags.outputs.current_tag }}...${{ steps.tags.outputs.previous_tag }})
+          changelog=$(git log --first-parent --pretty=format:"-%h -> %d %s: %b (%cr) (%an)" ${{ steps.tags.outputs.current_tag }}...${{ steps.tags.outputs.previous_tag }})
           printf "changelog:%s\n" "${changelog}"
           changelog="${changelog//'%'/'%25'}"
           printf "changelog:%s\n" "${changelog}"
