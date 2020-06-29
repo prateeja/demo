@@ -32,15 +32,15 @@ jobs:
         shell: bash
         id: changelog
         run: |
-          printf "version tag:%s" "${{ steps.tags.outputs.current_tag }}...${{ steps.tags.outputs.previous_tag }}"
+          printf "version tag:%s\n" "${{ steps.tags.outputs.current_tag }}...${{ steps.tags.outputs.previous_tag }}"
           changelog=$(git log --first-parent --pretty=format:"-%d %s: %b (%cr) (%an)" ${{ steps.tags.outputs.current_tag }}...${{ steps.tags.outputs.previous_tag }})
-          printf "changelog:%s" "${changelog}"
-          compare="https://github.com/${{ github.repository }}/compare/${{ steps.tags.outputs.previous_tag }}...${{ steps.tags.outputs.current_tag }}"
-          printf "compare:%s" "${compare}"
-          changelog="sha: ${{ github.sha }}"$'\n\n'"full diff:${compare}"$'\n\n'"${changelog}"
+          printf "changelog:%s\n" "${changelog}"
           changelog="${changelog//'%'/'%25'}"
+          printf "changelog:%s\n" "${changelog}"
           changelog="${changelog//$'\n'/'%0A'}"
+          printf "changelog:%s\n" "${changelog}"
           changelog="${changelog//$'\r'/'%0D'}"
+          printf "changelog:%s\n" "${changelog}"
           echo "::set-output name=changelog::$changelog"
       - name: Create Release
         id: create_release
