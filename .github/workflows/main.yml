@@ -16,15 +16,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 30
-      - run: git fetch --tags
-      - name: Build
-        run: |
-          git describe --tags | tee test.txt
-          git log -n10 --oneline
-          git describe --abbrev=0 --tags
-          git describe --abbrev=0 --tags HEAD^
       - name: Prepare release description
         id: prepare_release_description
         shell: bash
