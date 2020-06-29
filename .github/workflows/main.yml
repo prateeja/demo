@@ -17,17 +17,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Prepare release description
-        id: prepare_release_description
+        id: prepare_changelog
         shell: bash
         run: |
+          CURR_TAG="$(git describe --tags --abbrev=0)"
           PREV_TAG="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
-          GIT_ARGS=(
-            "${PREV_TAG}..." # Get all commits since last tag ( release )
-            --no-merges # Ignore merge commits
-            --grep 'CI SKIP' --invert-grep # Ignore CI SKIP commits
-            --pretty='%h %s - %aN' # <short hash> <commit title> - <author name>
-            )
-          DESCRIPTION="$(git log "${GIT_ARGS[@]}")"
+          CHANGELOG_FROM="$(if [ "$PREV_TAG" = "HEAD" ]; then echo "$PREV_TAG..HEAD"; else echo "$CURR_TAG...$PREV_TAG"; fi;)"
+          DESCRIPTION="$(git log --pretty="%h - %s (%an)" $CHANGELOG_FROM)"
           printf 'DESCRIPTION:\n%s\n' "${DESCRIPTION}"
           # See https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/td-p/37870
           DESCRIPTION="${DESCRIPTION//'%'/'%25'}"
@@ -42,6 +38,6 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          body: "${{ steps.prepare_release_description.outputs.DESCRIPTION }}"
+          body: "${{ steps.prepare_changelog.outputs.DESCRIPTION }}"
           draft: false
           prerelease: false
