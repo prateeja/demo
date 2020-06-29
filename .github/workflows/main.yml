@@ -20,8 +20,11 @@ jobs:
         id: prepare_changelog
         shell: bash
         run: |
+          git fetch --tags
           export CURR_TAG="$(git describe --tags --abbrev=0)"
+          printf 'CURR_TAG:\n%s\n' "${CURR_TAG}"
           export PREV_TAG="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
+          printf 'PREV_TAG:\n%s\n' "${PREV_TAG}"
           export CHANGELOG_FROM="$(if [ "$PREV_TAG" = "HEAD" ]; then echo "$PREV_TAG..HEAD"; else echo "$CURR_TAG...$PREV_TAG"; fi;)"
           printf 'CHANGELOG_FROM:\n%s\n' "${CHANGELOG_FROM}"
           changelog="$(git log --pretty="%h - %s (%an)" $CHANGELOG_FROM)"
