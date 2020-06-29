@@ -20,6 +20,7 @@ jobs:
         id: prepare_changelog
         shell: bash
         run: |
+          git fetch --tags
           curr_tag="$(git describe --tags --abbrev=0)"
           printf "curr tag:\n%s\n" "${curr_tag}"
           prev_tag="$(echo $(git tag -l | sort -V --reverse | sed -n 2p) | sed 's/^$/HEAD/')"
