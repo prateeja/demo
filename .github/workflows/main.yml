@@ -29,6 +29,7 @@ jobs:
         id: prepare_changelog
         shell: bash
         run: |
+          git fetch -f
           printf "prev_tag:%s\n" "${{ steps.tags.outputs.curr_tag }}"
           printf "curr_tag:%s\n" "${{ steps.tags.outputs.prev_tag }}"
           printf "version tag:%s\n" "${{ steps.tags.outputs.curr_tag }}...${{ steps.tags.outputs.prev_tag }}"
