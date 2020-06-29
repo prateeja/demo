@@ -42,16 +42,6 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          body: "${{ steps.prepare_release_description.outputs.description }}"
+          body: "${{ steps.prepare_release_description.outputs.DESCRIPTION }}"
           draft: false
           prerelease: false
-      - name: Upload Release
-        id: upload_release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: '${{ steps.create_release.outputs.upload_url }}'
-          asset_path: 'test.txt'
-          asset_name: 'test.txt'
-          asset_content_type: 'text/plain'
